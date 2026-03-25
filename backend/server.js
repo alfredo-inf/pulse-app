@@ -8,20 +8,44 @@ const ExcelJS = require("exceljs");
 
 const app = express();
 const PORT = process.env.PORT || 4000;
-const JWT_SECRET = process.env.JWT_SECRET || "pulse_secret_2026";
 
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://yubafuvdfrsijzsxtzoe.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YmFmdXZkZnJzaWp6c3h0em9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ0MDU3OTMsImV4cCI6MjA4OTk4MTc5M30.U6N7sUqH6i_1raxwmHTMAXMLpPH5a5ZwwcDvme9Usis";
+// ── ENV VALIDATION ──────────────────────────────────────────────────────────
+// These MUST be set as environment variables in Render.
+// Never hardcode secrets in source code.
+const JWT_SECRET    = process.env.JWT_SECRET;
+const SUPABASE_URL  = process.env.SUPABASE_URL;
+const SUPABASE_KEY  = process.env.SUPABASE_SERVICE_KEY; // service_role key, NOT anon
+
+if (!JWT_SECRET || !SUPABASE_URL || !SUPABASE_KEY) {
+  console.error("❌  Missing required environment variables: JWT_SECRET, SUPABASE_URL, SUPABASE_SERVICE_KEY");
+  process.exit(1);
+}
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-app.use(cors());
+// ── CORS ─────────────────────────────────────────────────────────────────────
+// FIX: restrict to your actual Vercel frontend URL only.
+// Set FRONTEND_URL in Render env vars, e.g. https://pulse-app.vercel.app
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // Allow requests with no origin (e.g. Render health checks, curl)
+    if (!origin) return callback(null, true);
+    if (origin === FRONTEND_URL) return callback(null, true);
+    callback(new Error(`CORS: origin ${origin} not allowed`));
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 
-// ── In-memory supervisors (extend to DB later) ──────────────────────────────
+// ── In-memory supervisors ───────────────────────────────────────────────────
+// To add/change users, update these values and redeploy.
+// Passwords are hashed — never store plain text.
 const supervisors = [
   { id: "1", name: "Alfredo", email: "alfredo@pulse.com", password: bcrypt.hashSync("pulse123", 10), role: "supervisor" },
-  { id: "2", name: "Admin", email: "admin@pulse.com", password: bcrypt.hashSync("admin123", 10), role: "admin" },
+  { id: "2", name: "Admin",   email: "admin@pulse.com",   password: bcrypt.hashSync("admin123", 10), role: "admin"      },
 ];
 
 // ── Auth middleware ─────────────────────────────────────────────────────────
@@ -116,39 +140,37 @@ app.get("/api/stats", auth, async (req, res) => {
     return vals.length ? (vals.reduce((a, b) => a + Number(b), 0) / vals.length).toFixed(1) : null;
   };
 
-  // Per-agent stats
   const agentStats = agents?.map(agent => {
     const ac = coachings.filter(c => c.agent_id === agent.id);
     return {
       agent,
       total_coachings: ac.length,
-      avg_hold: avg(ac, "hold_procedure"),
-      avg_closing: avg(ac, "closing_call_wrap"),
+      avg_hold:         avg(ac, "hold_procedure"),
+      avg_closing:      avg(ac, "closing_call_wrap"),
       avg_verification: avg(ac, "verification_auth"),
-      avg_aht: avg(ac, "aht"),
-      avg_conformance: avg(ac, "conformance"),
-      avg_adherence: avg(ac, "adherence"),
-      avg_nps: avg(ac, "nps"),
-      avg_csat: avg(ac, "csat"),
-      avg_fcr: avg(ac, "fcr_7days"),
+      avg_aht:          avg(ac, "aht"),
+      avg_conformance:  avg(ac, "conformance"),
+      avg_adherence:    avg(ac, "adherence"),
+      avg_nps:          avg(ac, "nps"),
+      avg_csat:         avg(ac, "csat"),
+      avg_fcr:          avg(ac, "fcr_7days"),
     };
   });
 
-  // Team averages
   const team = {
     total_coachings: coachings.length,
-    open: coachings.filter(c => c.status === "open").length,
-    in_progress: coachings.filter(c => c.status === "in_progress").length,
-    closed: coachings.filter(c => c.status === "closed").length,
-    avg_hold: avg(coachings, "hold_procedure"),
-    avg_closing: avg(coachings, "closing_call_wrap"),
-    avg_verification: avg(coachings, "verification_auth"),
-    avg_aht: avg(coachings, "aht"),
+    open:            coachings.filter(c => c.status === "open").length,
+    in_progress:     coachings.filter(c => c.status === "in_progress").length,
+    closed:          coachings.filter(c => c.status === "closed").length,
+    avg_hold:        avg(coachings, "hold_procedure"),
+    avg_closing:     avg(coachings, "closing_call_wrap"),
+    avg_verification:avg(coachings, "verification_auth"),
+    avg_aht:         avg(coachings, "aht"),
     avg_conformance: avg(coachings, "conformance"),
-    avg_adherence: avg(coachings, "adherence"),
-    avg_nps: avg(coachings, "nps"),
-    avg_csat: avg(coachings, "csat"),
-    avg_fcr: avg(coachings, "fcr_7days"),
+    avg_adherence:   avg(coachings, "adherence"),
+    avg_nps:         avg(coachings, "nps"),
+    avg_csat:        avg(coachings, "csat"),
+    avg_fcr:         avg(coachings, "fcr_7days"),
   };
 
   res.json({ team, agentStats, totalAgents: agents?.length || 0 });
@@ -156,7 +178,7 @@ app.get("/api/stats", auth, async (req, res) => {
 
 // ── EXPORT PDF ──────────────────────────────────────────────────────────────
 app.get("/api/export/pdf/:agentId", auth, async (req, res) => {
-  const { data: agent } = await supabase.from("agents").select("*").eq("id", req.params.agentId).single();
+  const { data: agent }     = await supabase.from("agents").select("*").eq("id", req.params.agentId).single();
   const { data: coachings } = await supabase.from("coachings").select("*").eq("agent_id", req.params.agentId).order("coaching_date", { ascending: false });
 
   res.setHeader("Content-Type", "application/pdf");
@@ -178,7 +200,7 @@ app.get("/api/export/pdf/:agentId", auth, async (req, res) => {
     doc.text(`Hold: ${c.hold_procedure ?? "—"}/5  |  Closing: ${c.closing_call_wrap ?? "—"}/5  |  Verification: ${c.verification_auth ?? "—"}/5  |  AHT: ${c.aht ?? "—"}s`);
     doc.text(`Conformance: ${c.conformance ?? "—"}%  |  Adherence: ${c.adherence ?? "—"}%  |  NPS: ${c.nps ?? "—"}  |  CSAT: ${c.csat ?? "—"}%  |  FCR 7d: ${c.fcr_7days ?? "—"}%`);
     if (c.behavior_observed) doc.text(`Behavior: ${c.behavior_observed}`);
-    if (c.action_plan) doc.text(`Action Plan: ${c.action_plan}`);
+    if (c.action_plan)       doc.text(`Action Plan: ${c.action_plan}`);
     doc.moveDown(0.5);
   });
 
@@ -193,24 +215,24 @@ app.get("/api/export/excel", auth, async (req, res) => {
   const ws = wb.addWorksheet("Coachings");
 
   ws.columns = [
-    { header: "Date", key: "coaching_date", width: 14 },
-    { header: "Agent", key: "agent_name", width: 20 },
-    { header: "Employee ID", key: "employee_id", width: 14 },
-    { header: "Team", key: "team", width: 18 },
-    { header: "Supervisor", key: "supervisor_name", width: 16 },
-    { header: "Call ID", key: "call_id", width: 14 },
-    { header: "Hold (1-5)", key: "hold_procedure", width: 12 },
-    { header: "Closing (1-5)", key: "closing_call_wrap", width: 14 },
-    { header: "Verification (1-5)", key: "verification_auth", width: 18 },
-    { header: "AHT (sec)", key: "aht", width: 12 },
-    { header: "Conformance %", key: "conformance", width: 16 },
-    { header: "Adherence %", key: "adherence", width: 14 },
-    { header: "NPS", key: "nps", width: 10 },
-    { header: "CSAT %", key: "csat", width: 12 },
-    { header: "FCR 7d %", key: "fcr_7days", width: 12 },
-    { header: "Status", key: "status", width: 12 },
-    { header: "Behavior Observed", key: "behavior_observed", width: 30 },
-    { header: "Action Plan", key: "action_plan", width: 30 },
+    { header: "Date",               key: "coaching_date",    width: 14 },
+    { header: "Agent",              key: "agent_name",       width: 20 },
+    { header: "Employee ID",        key: "employee_id",      width: 14 },
+    { header: "Team",               key: "team",             width: 18 },
+    { header: "Supervisor",         key: "supervisor_name",  width: 16 },
+    { header: "Call ID",            key: "call_id",          width: 14 },
+    { header: "Hold (1-5)",         key: "hold_procedure",   width: 12 },
+    { header: "Closing (1-5)",      key: "closing_call_wrap",width: 14 },
+    { header: "Verification (1-5)", key: "verification_auth",width: 18 },
+    { header: "AHT (sec)",          key: "aht",              width: 12 },
+    { header: "Conformance %",      key: "conformance",      width: 16 },
+    { header: "Adherence %",        key: "adherence",        width: 14 },
+    { header: "NPS",                key: "nps",              width: 10 },
+    { header: "CSAT %",             key: "csat",             width: 12 },
+    { header: "FCR 7d %",           key: "fcr_7days",        width: 12 },
+    { header: "Status",             key: "status",           width: 12 },
+    { header: "Behavior Observed",  key: "behavior_observed",width: 30 },
+    { header: "Action Plan",        key: "action_plan",      width: 30 },
   ];
 
   ws.getRow(1).font = { bold: true };
@@ -219,9 +241,9 @@ app.get("/api/export/excel", auth, async (req, res) => {
   coachings?.forEach(c => {
     ws.addRow({
       ...c,
-      agent_name: c.agents?.name,
+      agent_name:  c.agents?.name,
       employee_id: c.agents?.employee_id,
-      team: c.agents?.team,
+      team:        c.agents?.team,
     });
   });
 
@@ -231,5 +253,7 @@ app.get("/api/export/excel", auth, async (req, res) => {
   res.end();
 });
 
+// ── HEALTH ───────────────────────────────────────────────────────────────────
 app.get("/api/health", (_, res) => res.json({ status: "ok", app: "PULSE" }));
-app.listen(PORT, () => console.log(`PULSE API running on port ${PORT}`));
+
+app.listen(PORT, () => console.log(`✅  PULSE API running on port ${PORT}`));
