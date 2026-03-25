@@ -462,17 +462,19 @@ Respond ONLY with a valid JSON object, no markdown, no explanation:
   }
 }`;
 
-  const res = await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  const token = localStorage.getItem('pulse_token');
+  const res = await fetch(API + '/ai/coaching', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ prompt })
   });
-  const data = await res.json();
-  const text = data.content?.find(c=>c.type==='text')?.text||'{}';
-  try{ return JSON.parse(text.replace(/```json|```/g,'').trim()); }
-  catch{ return null; }
+  const result = await res.json();
+  if(result.error) throw new Error(result.error);
+  return result;
 }
-
 // ── NEW COACHING ──────────────────────────────────────────────────────────────
 function NewCoaching({user}){
   const[agents,setAgents]=useState([]);
