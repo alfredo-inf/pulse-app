@@ -3,179 +3,238 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PULSE — Coaching Platform</title>
+  <title>PULSE — Coaching Intelligence</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     :root {
       --bg: #09090b;
       --surface: #111113;
       --surface2: #18181c;
+      --surface3: #1e1e23;
       --border: #27272d;
+      --border2: #32323a;
       --amber: #f5a623;
-      --amber-dim: rgba(245,166,35,0.12);
+      --amber-dim: rgba(245,166,35,0.10);
+      --amber-glow: rgba(245,166,35,0.25);
       --green: #4ade80;
+      --green-dim: rgba(74,222,128,0.10);
       --red: #f87171;
+      --red-dim: rgba(248,113,113,0.10);
       --blue: #60a5fa;
+      --blue-dim: rgba(96,165,250,0.10);
+      --purple: #a78bfa;
+      --purple-dim: rgba(167,139,250,0.10);
       --text: #e4e4e8;
+      --text2: #a1a1aa;
       --muted: #52525e;
-      --r: 8px;
     }
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;}
+    body{font-family:'DM Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+    body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 70% -5%,rgba(245,166,35,0.04),transparent),radial-gradient(ellipse 40% 30% at 10% 80%,rgba(96,165,250,0.03),transparent);pointer-events:none;z-index:0;}
+    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
 
-    /* NOISE */
-    body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;}
+    .auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;position:relative;z-index:1;}
+    .auth-box{width:100%;max-width:360px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:2.5rem;animation:slideUp .5s cubic-bezier(.16,1,.3,1);}
+    .brand{font-family:'Syne',sans-serif;font-size:2.4rem;font-weight:800;color:var(--amber);letter-spacing:-.06em;line-height:1;}
+    .brand-tagline{font-size:.62rem;color:var(--muted);letter-spacing:.2em;text-transform:uppercase;margin-bottom:2.5rem;margin-top:.2rem;}
 
-    /* AUTH */
-    .auth{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:radial-gradient(ellipse 50% 50% at 50% -10%,rgba(245,166,35,0.08),transparent);}
-    .auth-box{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2.5rem;animation:up .4s cubic-bezier(.16,1,.3,1);}
-    .brand{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:var(--amber);letter-spacing:-.05em;}
-    .brand-sub{font-size:.65rem;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-bottom:2rem;}
-    label{display:block;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem;}
-    input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:.6rem .85rem;font-family:'DM Mono',monospace;font-size:.82rem;outline:none;transition:border .15s;margin-bottom:.9rem;}
-    input:focus,select:focus,textarea:focus{border-color:var(--amber);}
-    textarea{resize:vertical;min-height:70px;}
-    .hint-box{font-size:.7rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.7rem .85rem;margin-bottom:1rem;line-height:1.7;}
+    label{display:block;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem;}
+    input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--text);padding:.65rem .9rem;font-family:'DM Mono',monospace;font-size:.82rem;outline:none;transition:border-color .15s,box-shadow .15s;margin-bottom:1rem;}
+    input:focus,select:focus,textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim);}
+    textarea{resize:vertical;min-height:80px;line-height:1.6;}
+    select option{background:var(--surface2);}
 
-    /* BUTTONS */
-    .btn{display:inline-flex;align-items:center;gap:.45rem;padding:.55rem 1.1rem;border-radius:6px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:.78rem;transition:all .15s;white-space:nowrap;}
-    .btn-primary{background:var(--amber);color:#000;font-weight:500;}
-    .btn-primary:hover{background:#f0b840;transform:translateY(-1px);}
-    .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
-    .btn-ghost:hover{color:var(--text);border-color:var(--muted);}
-    .btn-danger{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.25);}
-    .btn-danger:hover{background:rgba(248,113,113,.2);}
-    .btn-green{background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.25);}
-    .btn-sm{padding:.35rem .75rem;font-size:.7rem;}
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:7px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:.78rem;font-weight:500;transition:all .15s;white-space:nowrap;}
+    .btn-primary{background:var(--amber);color:#000;}
+    .btn-primary:hover{background:#f0b840;transform:translateY(-1px);box-shadow:0 4px 20px rgba(245,166,35,0.3);}
+    .btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);}
+    .btn-ghost:hover{color:var(--text);border-color:var(--border2);background:var(--surface2);}
+    .btn-danger{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+    .btn-danger:hover{background:rgba(248,113,113,.18);}
+    .btn-ai{background:linear-gradient(135deg,rgba(167,139,250,.15),rgba(96,165,250,.15));color:var(--purple);border:1px solid rgba(167,139,250,.25);}
+    .btn-ai:hover{background:linear-gradient(135deg,rgba(167,139,250,.25),rgba(96,165,250,.25));border-color:rgba(167,139,250,.4);}
+    .btn-sm{padding:.32rem .7rem;font-size:.7rem;}
     .btn-full{width:100%;justify-content:center;}
+    .btn:disabled{opacity:.45;cursor:not-allowed;transform:none !important;}
 
-    /* LAYOUT */
-    .app{display:grid;grid-template-columns:210px 1fr;min-height:100vh;}
-    .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.25rem 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
-    .sidebar-brand{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--amber);letter-spacing:-.04em;padding:0 1.25rem;margin-bottom:1.75rem;}
-    .nav-section{font-size:.6rem;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);padding:.5rem 1.25rem .25rem;}
-    .nav-item{display:flex;align-items:center;gap:.65rem;padding:.6rem 1.25rem;font-size:.77rem;color:var(--muted);cursor:pointer;transition:all .15s;border-left:2px solid transparent;}
+    .app{display:grid;grid-template-columns:220px 1fr;min-height:100vh;position:relative;z-index:1;}
+    .sidebar{background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:1.5rem 0;position:sticky;top:0;height:100vh;overflow-y:auto;}
+    .sidebar-brand{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;color:var(--amber);letter-spacing:-.05em;padding:0 1.4rem;margin-bottom:.3rem;}
+    .sidebar-sub{font-size:.58rem;color:var(--muted);letter-spacing:.16em;text-transform:uppercase;padding:0 1.4rem;margin-bottom:2rem;}
+    .nav-group{font-size:.58rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding:.6rem 1.4rem .3rem;}
+    .nav-item{display:flex;align-items:center;gap:.7rem;padding:.65rem 1.4rem;font-size:.76rem;color:var(--text2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;user-select:none;}
     .nav-item:hover{color:var(--text);background:var(--surface2);}
     .nav-item.active{color:var(--amber);border-left-color:var(--amber);background:var(--amber-dim);}
-    .sidebar-footer{margin-top:auto;padding:1rem 1.25rem;border-top:1px solid var(--border);}
-    .user-chip{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;}
-    .avatar{width:30px;height:30px;border-radius:50%;background:var(--amber);color:#000;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.72rem;flex-shrink:0;}
-    .user-name{font-size:.77rem;font-weight:500;}
-    .user-role{font-size:.62rem;color:var(--amber);text-transform:uppercase;letter-spacing:.1em;}
-    .main{padding:1.75rem;overflow-y:auto;animation:fadeIn .25s ease;}
+    .nav-icon{font-size:.9rem;width:16px;text-align:center;}
+    .sidebar-footer{margin-top:auto;padding:1.1rem 1.4rem;border-top:1px solid var(--border);}
+    .user-chip{display:flex;align-items:center;gap:.7rem;margin-bottom:.8rem;}
+    .avatar{width:32px;height:32px;border-radius:50%;background:var(--amber);color:#000;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:.72rem;flex-shrink:0;}
+    .user-info .uname{font-size:.78rem;font-weight:500;color:var(--text);}
+    .user-info .urole{font-size:.6rem;color:var(--amber);text-transform:uppercase;letter-spacing:.1em;}
+    .main{padding:2rem;overflow-y:auto;}
 
-    /* PAGE HEADER */
-    .ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.75rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
-    .ph-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-.03em;}
-    .ph-actions{display:flex;gap:.6rem;}
+    .ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;gap:1rem;}
+    .ph-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:-.03em;line-height:1.1;}
+    .ph-sub{font-size:.7rem;color:var(--muted);margin-top:.3rem;}
+    .ph-actions{display:flex;gap:.6rem;flex-shrink:0;}
 
-    /* STAT CARDS */
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.85rem;margin-bottom:1.75rem;}
-    .stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1.1rem;transition:border-color .2s;animation:up .4s cubic-bezier(.16,1,.3,1);}
-    .stat:hover{border-color:var(--amber);}
-    .stat-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:.4rem;}
-    .stat-value{font-family:'Syne',sans-serif;font-size:2rem;font-weight:800;line-height:1;}
-    .stat-sub{font-size:.68rem;color:var(--muted);margin-top:.3rem;}
-    .amber{color:var(--amber);}
-    .green{color:var(--green);}
-    .red{color:var(--red);}
-    .blue{color:var(--blue);}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-bottom:1.75rem;}
+    .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.25rem;transition:border-color .2s,transform .2s;}
+    .stat:hover{border-color:var(--border2);transform:translateY(-2px);}
+    .stat-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--muted);margin-bottom:.5rem;}
+    .stat-value{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;line-height:1;}
+    .stat-sub{font-size:.68rem;color:var(--muted);margin-top:.35rem;}
+    .c-amber{color:var(--amber);}
+    .c-green{color:var(--green);}
+    .c-red{color:var(--red);}
+    .c-blue{color:var(--blue);}
+    .c-purple{color:var(--purple);}
+    .c-muted{color:var(--muted);}
 
-    /* GRID 2 cols */
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;}
-    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;margin-bottom:1.5rem;}
-
-    /* CARD */
-    .card{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
-    .card-head{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;border-bottom:1px solid var(--border);}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:1rem;}
+    .card-head{display:flex;align-items:center;justify-content:space-between;padding:1.1rem 1.4rem;border-bottom:1px solid var(--border);}
     .card-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;}
-    .card-body{padding:1.25rem;}
+    .card-sub{font-size:.68rem;color:var(--muted);margin-top:.1rem;}
+    .card-body{padding:1.4rem;}
 
-    /* TABLE */
-    .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+    .tbl-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
     table{width:100%;border-collapse:collapse;}
-    th{text-align:left;padding:.6rem 1.1rem;font-size:.62rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:var(--surface2);font-weight:500;}
-    td{padding:.8rem 1.1rem;font-size:.78rem;border-top:1px solid var(--border);}
-    tr:hover td{background:var(--surface2);}
+    th{text-align:left;padding:.65rem 1.2rem;font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);background:var(--surface2);font-weight:500;}
+    td{padding:.85rem 1.2rem;font-size:.78rem;border-top:1px solid var(--border);}
+    tr:hover td{background:rgba(255,255,255,.015);}
 
-    /* BADGE */
-    .badge{display:inline-block;padding:.18rem .55rem;border-radius:4px;font-size:.62rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;}
-    .badge-open{background:rgba(248,113,113,.12);color:var(--red);border:1px solid rgba(248,113,113,.25);}
-    .badge-in_progress{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.25);}
-    .badge-closed{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25);}
-    .badge-active{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.25);}
-    .badge-inactive{background:rgba(82,82,94,.15);color:var(--muted);border:1px solid var(--border);}
+    .badge{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .6rem;border-radius:5px;font-size:.6rem;font-weight:500;text-transform:uppercase;letter-spacing:.08em;}
+    .badge-open{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+    .badge-in_progress{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
+    .badge-closed{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.2);}
+    .badge-active{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.2);}
+    .badge-inactive{background:rgba(82,82,94,.1);color:var(--muted);border:1px solid var(--border);}
 
-    /* KPI BAR */
-    .kpi-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.6rem;}
-    .kpi-label{font-size:.7rem;color:var(--muted);width:120px;flex-shrink:0;}
-    .kpi-bar-wrap{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
-    .kpi-bar{height:100%;border-radius:3px;background:var(--amber);transition:width .6s cubic-bezier(.16,1,.3,1);}
-    .kpi-val{font-size:.72rem;width:45px;text-align:right;}
+    .kpi-tag{display:inline-flex;align-items:center;gap:.3rem;padding:.2rem .55rem;border-radius:4px;font-size:.62rem;font-weight:500;margin:.15rem;}
+    .kpi-tag.pos{background:var(--green-dim);color:var(--green);border:1px solid rgba(74,222,128,.2);}
+    .kpi-tag.neg{background:var(--red-dim);color:var(--red);border:1px solid rgba(248,113,113,.2);}
+    .kpi-tag.neu{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,166,35,.2);}
 
-    /* MODAL */
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);animation:fadeIn .2s ease;padding:1rem;}
-    .modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.75rem;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;animation:up .3s cubic-bezier(.16,1,.3,1);}
-    .modal-title{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:1.5rem;}
-    .modal-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem;}
-    .modal-actions{display:flex;gap:.75rem;margin-top:1.25rem;}
+    .behavior-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:1rem;}
+    .behavior-card{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.9rem 1rem;cursor:pointer;transition:all .2s;user-select:none;}
+    .behavior-card:hover{border-color:var(--border2);}
+    .behavior-card.selected{background:var(--amber-dim);border-color:var(--amber);}
+    .behavior-card.selected .bname{color:var(--amber);}
+    .bname{font-size:.8rem;font-weight:500;margin-bottom:.2rem;transition:color .15s;}
+    .bfull{font-size:.65rem;color:var(--muted);margin-bottom:.5rem;line-height:1.4;}
+
+    .coaching-output{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;}
+    .co-section{margin-bottom:1.4rem;}
+    .co-section:last-child{margin-bottom:0;}
+    .co-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--amber);margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;}
+    .co-content{font-size:.8rem;line-height:1.85;color:var(--text2);}
+    .co-steps{list-style:none;padding:0;}
+    .co-steps li{padding:.45rem 0;border-bottom:1px solid var(--border);font-size:.78rem;color:var(--text2);display:flex;gap:.8rem;line-height:1.65;}
+    .co-steps li:last-child{border-bottom:none;}
+    .co-steps li::before{content:attr(data-n);color:var(--amber);font-family:'Syne',sans-serif;font-weight:700;flex-shrink:0;min-width:16px;}
+
+    .impact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem;}
+    .impact-kpi{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem;text-align:center;}
+    .impact-kpi-name{font-size:.6rem;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);margin-bottom:.4rem;}
+    .impact-kpi-arrow{font-size:1.8rem;margin-bottom:.3rem;line-height:1;}
+    .impact-kpi-text{font-size:.66rem;color:var(--text2);line-height:1.55;}
+
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(6px);padding:1rem;}
+    .modal{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:2rem;width:100%;max-width:680px;max-height:92vh;overflow-y:auto;animation:slideUp .3s cubic-bezier(.16,1,.3,1);}
+    .modal-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:800;margin-bottom:.25rem;}
+    .modal-sub{font-size:.7rem;color:var(--muted);margin-bottom:1.5rem;}
+    .modal-section{font-size:.6rem;text-transform:uppercase;letter-spacing:.15em;color:var(--amber);margin:1.25rem 0 .6rem;padding-bottom:.35rem;border-bottom:1px solid var(--border);}
+    .modal-grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 1rem;}
+    .modal-actions{display:flex;gap:.75rem;margin-top:1.5rem;padding-top:1.25rem;border-top:1px solid var(--border);}
     .span2{grid-column:span 2;}
-    .form-section{font-size:.62rem;text-transform:uppercase;letter-spacing:.15em;color:var(--amber);margin:.75rem 0 .5rem;grid-column:span 2;}
 
-    /* STAR RATING */
-    .stars{display:flex;gap:.3rem;margin-bottom:.9rem;}
-    .star{width:28px;height:28px;border-radius:4px;border:1px solid var(--border);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.9rem;transition:all .15s;}
-    .star.on{background:var(--amber-dim);border-color:var(--amber);}
+    .ai-loading{display:flex;align-items:center;gap:.8rem;padding:2rem 1.4rem;color:var(--purple);font-size:.8rem;}
+    .ai-dots{display:flex;gap:.3rem;}
+    .ai-dots span{width:7px;height:7px;border-radius:50%;background:var(--purple);animation:pulse 1.2s infinite;}
+    .ai-dots span:nth-child(2){animation-delay:.2s;}
+    .ai-dots span:nth-child(3){animation-delay:.4s;}
 
-    /* SCORE CHIP */
-    .score{display:inline-flex;align-items:center;justify-content:center;width:28px;height:20px;border-radius:4px;font-size:.7rem;font-weight:500;}
-    .score-1,.score-2{background:rgba(248,113,113,.15);color:var(--red);}
-    .score-3{background:rgba(245,166,35,.15);color:var(--amber);}
-    .score-4,.score-5{background:rgba(74,222,128,.15);color:var(--green);}
+    .step-bar{display:flex;gap:.5rem;margin-bottom:1.75rem;align-items:center;}
+    .step-item{display:flex;align-items:center;gap:.5rem;padding:.4rem .9rem;border-radius:6px;font-size:.72rem;cursor:pointer;}
+    .step-sep{width:20px;height:1px;background:var(--border);flex-shrink:0;}
 
-    /* SEARCH */
-    .search-wrap{position:relative;margin-bottom:1rem;}
-    .search-wrap input{margin-bottom:0;padding-left:2rem;}
-    .search-icon{position:absolute;left:.7rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.8rem;}
+    .search-row{display:flex;gap:.75rem;margin-bottom:1.25rem;align-items:center;}
+    .search-wrap{position:relative;flex:1;}
+    .search-wrap input{margin-bottom:0;padding-left:2.1rem;}
+    .search-icon{position:absolute;left:.75rem;top:50%;transform:translateY(-50%);color:var(--muted);font-size:.85rem;pointer-events:none;}
 
-    /* EMPTY / LOADING */
-    .empty,.loading{padding:3rem;text-align:center;color:var(--muted);font-size:.8rem;}
-    .error-msg{color:var(--red);font-size:.75rem;margin-bottom:.75rem;}
+    .empty,.loading{padding:4rem;text-align:center;color:var(--muted);font-size:.8rem;}
+    .error-msg{color:var(--red);font-size:.73rem;margin-bottom:.85rem;padding:.6rem .8rem;background:var(--red-dim);border:1px solid rgba(248,113,113,.2);border-radius:6px;}
+    .hint-box{font-size:.7rem;color:var(--muted);background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:.8rem .9rem;margin-bottom:1rem;line-height:1.8;}
+    .divider{height:1px;background:var(--border);margin:1.25rem 0;}
 
-    /* TOAST */
-    .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:.8rem 1.1rem;font-size:.78rem;z-index:9998;animation:up .3s cubic-bezier(.16,1,.3,1);max-width:280px;}
-    .toast.success{border-color:rgba(74,222,128,.4);color:var(--green);}
-    .toast.error{border-color:rgba(248,113,113,.4);color:var(--red);}
+    .kpi-bar-row{display:flex;align-items:center;gap:.75rem;margin-bottom:.55rem;}
+    .kpi-bar-label{font-size:.68rem;color:var(--text2);width:80px;flex-shrink:0;}
+    .kpi-bar-track{flex:1;height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+    .kpi-bar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.16,1,.3,1);}
+    .kpi-bar-val{font-size:.68rem;color:var(--text2);width:35px;text-align:right;flex-shrink:0;}
 
-    @keyframes up{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+    .toast{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.85rem 1.2rem;font-size:.78rem;z-index:9998;animation:slideUp .3s cubic-bezier(.16,1,.3,1);max-width:300px;box-shadow:0 8px 32px rgba(0,0,0,.4);}
+    .toast.success{border-color:rgba(74,222,128,.35);color:var(--green);}
+    .toast.error{border-color:rgba(248,113,113,.35);color:var(--red);}
+
+    @keyframes slideUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes pulse{0%,80%,100%{opacity:.2;transform:scale(.8)}40%{opacity:1;transform:scale(1)}}
 
     @media(max-width:768px){
       .app{grid-template-columns:1fr;}
       .sidebar{display:none;}
       .stats{grid-template-columns:1fr 1fr;}
-      .grid2,.grid3{grid-template-columns:1fr;}
-      .modal-grid{grid-template-columns:1fr;}
+      .modal-grid2{grid-template-columns:1fr;}
       .span2{grid-column:span 1;}
-      .form-section{grid-column:span 1;}
+      .behavior-grid{grid-template-columns:1fr;}
+      .impact-grid{grid-template-columns:1fr;}
     }
   </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="module">
-import{createElement as h,useState,useEffect,useCallback,useRef}from'https://esm.sh/react@18';
+import{createElement as h,useState,useEffect,useCallback,Fragment}from'https://esm.sh/react@18';
 import{createRoot}from'https://esm.sh/react-dom@18/client';
 
-// ── CONFIG ──────────────────────────────────────────────────────────────────
 const API = 'https://pulse-app-07wd.onrender.com/api';
 
-// ── API ─────────────────────────────────────────────────────────────────────
-const api = async (path, opts={}) => {
+// ── KNOWLEDGE BASE ────────────────────────────────────────────────────────────
+const BEHAVIORS = [
+  {
+    id:'lara', name:'LARA', full:'Listen Actively & Respond Appropriately',
+    kpiImpact:{fcr:'pos',csat:'pos',nps:'pos'},
+  },
+  {
+    id:'ownership', name:'Take Ownership', full:'Take Ownership',
+    kpiImpact:{fcr:'pos',csat:'pos',nps:'pos'},
+  },
+  {
+    id:'warm', name:'Be Warm & Friendly', full:'Be Warm & Friendly',
+    kpiImpact:{fcr:'neu',csat:'pos',nps:'pos'},
+  },
+  {
+    id:'needs', name:'Discover Needs', full:'Discover Needs',
+    kpiImpact:{fcr:'pos',csat:'pos',nps:'pos'},
+  },
+  {
+    id:'expectations', name:'Setting Expectations', full:'Setting Expectations',
+    kpiImpact:{fcr:'pos',csat:'pos',nps:'neu'},
+  },
+];
+
+const KPI_INFO = {
+  fcr:  {label:'FCR',     full:'First Call Resolution',       color:'var(--green)', unit:'%', good:80},
+  csat: {label:'CSAT',    full:'Customer Satisfaction',       color:'var(--blue)',  unit:'%', good:85},
+  nps:  {label:'MES NPS', full:'Member Experience Score NPS', color:'var(--amber)', unit:'',  good:50},
+};
+
+// ── API ───────────────────────────────────────────────────────────────────────
+const apiFetch = async (path, opts={}) => {
   const token = localStorage.getItem('pulse_token');
-  const res = await fetch(API+path, {
+  const res = await fetch(API+path,{
     ...opts,
     headers:{'Content-Type':'application/json',...(token?{Authorization:`Bearer ${token}`}:{}),...(opts.headers||{})}
   });
@@ -184,9 +243,9 @@ const api = async (path, opts={}) => {
   return data;
 };
 
-// ── TOAST ────────────────────────────────────────────────────────────────────
+// ── TOAST ─────────────────────────────────────────────────────────────────────
 let _toast;
-const toast = (msg,type='success') => { _toast({msg,type}); setTimeout(()=>_toast(null),3000); };
+const toast = (msg,type='success')=>{ _toast&&_toast({msg,type}); setTimeout(()=>_toast&&_toast(null),3500); };
 function Toast(){
   const[t,setT]=useState(null);
   _toast=setT;
@@ -194,208 +253,176 @@ function Toast(){
   return h('div',{className:`toast ${t.type}`},t.msg);
 }
 
-// ── STAR RATING ──────────────────────────────────────────────────────────────
-function Stars({value,onChange,name}){
-  return h('div',{className:'stars'},
-    [1,2,3,4,5].map(n=>h('div',{
-      key:n,className:`star ${value>=n?'on':''}`,
-      onClick:()=>onChange(n),
-      title:`${n}/5`
-    },n<=value?'★':'☆'))
-  );
-}
-
-function ScoreChip({val}){
-  if(val==null)return h('span',{style:{color:'var(--muted)'}}, '—');
-  return h('span',{className:`score score-${val}`},val);
-}
-
-// ── KPI BAR ──────────────────────────────────────────────────────────────────
-function KpiBar({label,value,max=100,unit='%',color='var(--amber)'}){
-  const pct = Math.min(100,(Number(value)||0)/max*100);
-  return h('div',{className:'kpi-row'},
-    h('span',{className:'kpi-label'},label),
-    h('div',{className:'kpi-bar-wrap'},h('div',{className:'kpi-bar',style:{width:`${pct}%`,background:color}})),
-    h('span',{className:'kpi-val'},value!=null?`${value}${unit}`:'—')
-  );
-}
-
-// ── AUTH ─────────────────────────────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────────────────────────
 function AuthPage({onLogin}){
   const[form,setForm]=useState({email:'alfredo@pulse.com',password:'pulse123'});
   const[err,setErr]=useState('');
   const[loading,setLoading]=useState(false);
   const set=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
-
   const submit=async()=>{
     setErr('');setLoading(true);
     try{
-      const d=await api('/auth/login',{method:'POST',body:JSON.stringify(form)});
+      const d=await apiFetch('/auth/login',{method:'POST',body:JSON.stringify(form)});
       localStorage.setItem('pulse_token',d.token);
       onLogin(d.user);
     }catch(e){setErr(e.message);}
     setLoading(false);
   };
-
   return h('div',{className:'auth'},
     h('div',{className:'auth-box'},
       h('div',{className:'brand'},'PULSE'),
-      h('div',{className:'brand-sub'},'Coaching Platform · MedSupp'),
-      err&&h('div',{className:'error-msg'},'⚠ '+err),
+      h('div',{className:'brand-tagline'},'Coaching Intelligence · MedSupp'),
+      err&&h('div',{className:'error-msg'},err),
       h('label',null,'Email'),
       h('input',{type:'email',value:form.email,onChange:set('email')}),
       h('label',null,'Password'),
       h('input',{type:'password',value:form.password,onChange:set('password'),onKeyDown:e=>e.key==='Enter'&&submit()}),
-      h('button',{className:'btn btn-primary btn-full',onClick:submit,disabled:loading},loading?'…':'Sign In →'),
-      h('div',{className:'hint-box'},
-        '🔑 alfredo@pulse.com / pulse123',h('br',null),
-        '🔑 admin@pulse.com / admin123'
-      )
+      h('button',{className:'btn btn-primary btn-full',onClick:submit,disabled:loading},loading?'Signing in…':'Sign In →'),
+      h('div',{className:'hint-box'},'🔑 alfredo@pulse.com / pulse123',h('br',null),'🔑 admin@pulse.com / admin123')
     )
   );
 }
 
-// ── SIDEBAR ──────────────────────────────────────────────────────────────────
+// ── SIDEBAR ───────────────────────────────────────────────────────────────────
 function Sidebar({user,page,setPage,onLogout}){
   const nav=[
     {id:'dashboard',icon:'◈',label:'Dashboard'},
-    {id:'coachings',icon:'◉',label:'Coachings'},
+    {id:'new_coaching',icon:'✦',label:'New Coaching'},
+    {id:'coachings',icon:'◉',label:'Coaching History'},
     {id:'agents',icon:'⊞',label:'Agents'},
   ];
   return h('aside',{className:'sidebar'},
     h('div',{className:'sidebar-brand'},'PULSE'),
-    h('div',{className:'nav-section'},'Menu'),
+    h('div',{className:'sidebar-sub'},'Coaching Intelligence'),
+    h('div',{className:'nav-group'},'Navigation'),
     nav.map(n=>h('div',{key:n.id,className:`nav-item ${page===n.id?'active':''}`,onClick:()=>setPage(n.id)},
-      h('span',null,n.icon),n.label
+      h('span',{className:'nav-icon'},n.icon),n.label
     )),
     h('div',{className:'sidebar-footer'},
       h('div',{className:'user-chip'},
         h('div',{className:'avatar'},user.name[0]),
-        h('div',null,h('div',{className:'user-name'},user.name),h('div',{className:'user-role'},user.role))
+        h('div',{className:'user-info'},
+          h('div',{className:'uname'},user.name),
+          h('div',{className:'urole'},user.role)
+        )
       ),
       h('button',{className:'btn btn-ghost btn-full btn-sm',onClick:onLogout},'Sign Out')
     )
   );
 }
 
-// ── DASHBOARD ────────────────────────────────────────────────────────────────
-function Dashboard(){
+// ── DASHBOARD ─────────────────────────────────────────────────────────────────
+function Dashboard({setPage}){
   const[stats,setStats]=useState(null);
-  const npsRef=useRef(),hygieneRef=useRef(),chartInstances=useRef({});
-
-  useEffect(()=>{
-    api('/stats').then(s=>{setStats(s);}).catch(()=>{});
-  },[]);
-
-  useEffect(()=>{
-    if(!stats)return;
-    const t=stats.team;
-
-    Object.values(chartInstances.current).forEach(c=>c.destroy());
-    chartInstances.current={};
-
-    if(npsRef.current){
-      chartInstances.current.nps=new Chart(npsRef.current,{
-        type:'bar',
-        data:{
-          labels:['NPS','CSAT %','FCR 7d %','Conformance %','Adherence %'],
-          datasets:[{
-            data:[t.avg_nps,t.avg_csat,t.avg_fcr,t.avg_conformance,t.avg_adherence],
-            backgroundColor:['#f5a623cc','#60a5facc','#4ade80cc','#f5a623aa','#60a5faaa'],
-            borderRadius:4,
-          }]
-        },
-        options:{plugins:{legend:{display:false}},scales:{y:{grid:{color:'#27272d'},ticks:{color:'#52525e',font:{family:'DM Mono',size:10}},max:100},x:{grid:{display:false},ticks:{color:'#52525e',font:{family:'DM Mono',size:10}}}},responsive:true,maintainAspectRatio:false}
-      });
-    }
-
-    if(hygieneRef.current){
-      chartInstances.current.hygiene=new Chart(hygieneRef.current,{
-        type:'radar',
-        data:{
-          labels:['Hold Procedure','Closing / Wrap','Verification / Auth'],
-          datasets:[{
-            label:'Team Avg (1-5)',
-            data:[t.avg_hold,t.avg_closing,t.avg_verification],
-            backgroundColor:'rgba(245,166,35,0.15)',
-            borderColor:'#f5a623',
-            pointBackgroundColor:'#f5a623',
-            pointRadius:4,
-          }]
-        },
-        options:{scales:{r:{min:0,max:5,ticks:{stepSize:1,color:'#52525e',backdropColor:'transparent',font:{family:'DM Mono',size:10}},grid:{color:'#27272d'},pointLabels:{color:'#e4e4e8',font:{family:'DM Mono',size:10}}}},plugins:{legend:{display:false}},responsive:true,maintainAspectRatio:false}
-      });
-    }
-
-    return ()=>Object.values(chartInstances.current).forEach(c=>c.destroy());
-  },[stats]);
-
+  useEffect(()=>{apiFetch('/stats').then(setStats).catch(()=>{});},[]);
   if(!stats)return h('div',{className:'loading'},'Loading dashboard…');
   const t=stats.team;
+  const kpiClass=(val,good,isNps)=>{
+    const n=Number(val);
+    if(isNps)return n>=50?'c-green':n>=0?'c-amber':'c-red';
+    return n>=good?'c-green':n>=(good-15)?'c-amber':'c-red';
+  };
+  const kpiColor=(val,good,isNps)=>{
+    const n=Number(val);
+    if(isNps)return n>=50?'var(--green)':n>=0?'var(--amber)':'var(--red)';
+    return n>=good?'var(--green)':n>=(good-15)?'var(--amber)':'var(--red)';
+  };
 
-  // FIX: todo el contenido del Dashboard está dentro de un único h('div') raíz
   return h('div',null,
     h('div',{className:'ph'},
-      h('div',{className:'ph-title'},'Dashboard'),
-      h('span',{style:{fontSize:'.72rem',color:'var(--muted)'}},new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}))
+      h('div',null,
+        h('div',{className:'ph-title'},'Dashboard'),
+        h('div',{className:'ph-sub'},new Date().toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}))
+      ),
+      h('button',{className:'btn btn-primary',onClick:()=>setPage('new_coaching')},'✦ New Coaching')
     ),
-    // FIX: div.stats correctamente cerrado con sus 4 hijos stat
     h('div',{className:'stats'},
       h('div',{className:'stat'},
-        h('div',{className:'stat-label'},'Total Coachings'),
-        h('div',{className:'stat-value amber'},t.total_coachings),
-        h('div',{className:'stat-sub'},`${t.open} open · ${t.in_progress} in progress`)
+        h('div',{className:'stat-label'},'⬡ MES NPS'),
+        h('div',{className:`stat-value ${kpiClass(t.avg_nps,50,true)}`},t.avg_nps??'—'),
+        h('div',{className:'stat-sub'},'Team avg · target ≥50')
       ),
       h('div',{className:'stat'},
-        h('div',{className:'stat-label'},'Team NPS'),
-        h('div',{className:`stat-value ${Number(t.avg_nps)>=50?'green':Number(t.avg_nps)>=0?'amber':'red'}`},t.avg_nps??'—'),
-        h('div',{className:'stat-sub'},'MES avg')
-      ),
-      // FIX: eliminada la llave } extra después de 'CSAT'
-      h('div',{className:'stat'},
-        h('div',{className:'stat-label'},'CSAT'),
-        h('div',{className:`stat-value ${Number(t.avg_csat)>=85?'green':Number(t.avg_csat)>=70?'amber':'red'}`},t.avg_csat?`${t.avg_csat}%`:'—'),
-        h('div',{className:'stat-sub'},'PCS avg')
+        h('div',{className:'stat-label'},'◎ CSAT'),
+        h('div',{className:`stat-value ${kpiClass(t.avg_csat,85)}`},t.avg_csat?`${t.avg_csat}%`:'—'),
+        h('div',{className:'stat-sub'},'Team avg · target ≥85%')
       ),
       h('div',{className:'stat'},
-        h('div',{className:'stat-label'},'FCR 7 Days'),
-        h('div',{className:`stat-value ${Number(t.avg_fcr)>=80?'green':Number(t.avg_fcr)>=65?'amber':'red'}`},t.avg_fcr?`${t.avg_fcr}%`:'—'),
-        h('div',{className:'stat-sub'},'team avg')
+        h('div',{className:'stat-label'},'◇ FCR 7-Day'),
+        h('div',{className:`stat-value ${kpiClass(t.avg_fcr,80)}`},t.avg_fcr?`${t.avg_fcr}%`:'—'),
+        h('div',{className:'stat-sub'},'Team avg · target ≥80%')
       )
     ),
-    // FIX: grid2 y leaderboard ahora están dentro del return, como hermanos del div.stats
-    h('div',{className:'grid2'},
+    h('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem',marginBottom:'1rem'}},
       h('div',{className:'card'},
-        h('div',{className:'card-head'},h('div',{className:'card-title'},'Performance KPIs')),
-        h('div',{className:'card-body'},h('canvas',{ref:npsRef,height:200}))
+        h('div',{className:'card-head'},h('div',null,h('div',{className:'card-title'},'Coaching Activity'))),
+        h('div',{className:'card-body'},
+          ['open','in_progress','closed'].map((s,i)=>{
+            const val=t[s]||0;
+            const colors=['var(--red)','var(--amber)','var(--green)'];
+            return h('div',{key:s,className:'kpi-bar-row'},
+              h('span',{className:'kpi-bar-label'},s.replace('_',' ')),
+              h('div',{className:'kpi-bar-track'},h('div',{className:'kpi-bar-fill',style:{width:`${t.total_coachings?val/t.total_coachings*100:0}%`,background:colors[i]}})),
+              h('span',{className:'kpi-bar-val'},val)
+            );
+          }),
+          h('div',{className:'divider'}),
+          h('div',{style:{display:'flex',justifyContent:'space-between',fontSize:'.72rem',color:'var(--muted)'}},
+            h('span',null,'Total coachings'),
+            h('span',{style:{color:'var(--text)',fontFamily:'Syne,sans-serif',fontWeight:700,fontSize:'1.1rem'}},t.total_coachings)
+          )
+        )
       ),
       h('div',{className:'card'},
-        h('div',{className:'card-head'},h('div',{className:'card-title'},'Hygiene KPIs — Team Avg')),
-        h('div',{className:'card-body'},h('canvas',{ref:hygieneRef,height:200}))
+        h('div',{className:'card-head'},h('div',null,h('div',{className:'card-title'},'KPI Targets at a Glance'))),
+        h('div',{className:'card-body'},
+          h('div',{className:'impact-grid'},
+            Object.entries(KPI_INFO).map(([k,info])=>{
+              const val = k==='nps'?t.avg_nps:k==='csat'?t.avg_csat:t.avg_fcr;
+              const isGood = val!=null&&Number(val)>=(k==='nps'?50:info.good);
+              return h('div',{key:k,className:'impact-kpi'},
+                h('div',{className:'impact-kpi-name'},info.label),
+                h('div',{style:{fontSize:'1.4rem',fontFamily:'Syne,sans-serif',fontWeight:800,color:val==null?'var(--muted)':isGood?'var(--green)':'var(--red)'}},
+                  val!=null?(k==='nps'?val:`${val}%`):'—'
+                ),
+                h('div',{style:{fontSize:'.62rem',color:'var(--muted)',marginTop:'.2rem'}},
+                  isGood?'✓ On target':`Target: ${k==='nps'?'≥50':'≥'+info.good+'%'}`
+                )
+              );
+            })
+          )
+        )
       )
     ),
     h('div',{className:'card'},
-      h('div',{className:'card-head'},h('div',{className:'card-title'},'Agent Leaderboard')),
-      h('div',null,
-        h('table',null,
-          h('thead',null,h('tr',null,
-            ['Agent','Coachings','Hold','Closing','Verif','AHT','Conform%','Adher%','NPS','CSAT%','FCR 7d%'].map(c=>h('th',{key:c},c))
-          )),
-          h('tbody',null,
-            (stats.agentStats||[]).sort((a,b)=>b.total_coachings-a.total_coachings).map(s=>
-              h('tr',{key:s.agent.id},
-                h('td',null,h('div',null,s.agent.name),h('div',{style:{fontSize:'.65rem',color:'var(--muted)'}},s.agent.employee_id)),
-                h('td',null,s.total_coachings),
-                h('td',null,h(ScoreChip,{val:s.avg_hold?Number(s.avg_hold):null})),
-                h('td',null,h(ScoreChip,{val:s.avg_closing?Number(s.avg_closing):null})),
-                h('td',null,h(ScoreChip,{val:s.avg_verification?Number(s.avg_verification):null})),
-                h('td',null,s.avg_aht?`${s.avg_aht}s`:'—'),
-                h('td',null,s.avg_conformance?`${s.avg_conformance}%`:'—'),
-                h('td',null,s.avg_adherence?`${s.avg_adherence}%`:'—'),
-                h('td',null,s.avg_nps??'—'),
-                h('td',null,s.avg_csat?`${s.avg_csat}%`:'—'),
-                h('td',null,s.avg_fcr?`${s.avg_fcr}%`:'—')
-              )
+      h('div',{className:'card-head'},
+        h('div',null,h('div',{className:'card-title'},'Agent KPI Overview')),
+        h('button',{className:'btn btn-ghost btn-sm',onClick:()=>setPage('new_coaching')},'+ New Coaching')
+      ),
+      h('table',null,
+        h('thead',null,h('tr',null,
+          ['Agent','Coachings','FCR 7d','CSAT','MES NPS','Priority Opportunity',''].map(c=>h('th',{key:c},c))
+        )),
+        h('tbody',null,
+          (stats.agentStats||[]).filter(s=>s.total_coachings>0).sort((a,b)=>b.total_coachings-a.total_coachings).map(s=>
+            h('tr',{key:s.agent.id},
+              h('td',null,
+                h('div',{style:{display:'flex',alignItems:'center',gap:'.6rem'}},
+                  h('div',{className:'avatar',style:{width:'26px',height:'26px',fontSize:'.62rem'}},s.agent.name[0]),
+                  h('div',null,
+                    h('div',null,s.agent.name),
+                    h('div',{style:{fontSize:'.62rem',color:'var(--muted)'}},s.agent.employee_id)
+                  )
+                )
+              ),
+              h('td',null,s.total_coachings),
+              h('td',null,s.avg_fcr?h('span',{style:{color:kpiColor(s.avg_fcr,80)}},`${s.avg_fcr}%`):'—'),
+              h('td',null,s.avg_csat?h('span',{style:{color:kpiColor(s.avg_csat,85)}},`${s.avg_csat}%`):'—'),
+              h('td',null,s.avg_nps!=null?h('span',{style:{color:kpiColor(s.avg_nps,50,true)}},s.avg_nps):'—'),
+              h('td',null,h('span',{style:{fontSize:'.68rem',color:'var(--muted)'}},
+                Number(s.avg_fcr)<80?'↓ FCR below target':Number(s.avg_csat)<85?'↓ CSAT below target':Number(s.avg_nps)<50?'↓ NPS below target':'✓ On target'
+              )),
+              h('td',null,h('button',{className:'btn btn-ghost btn-sm',onClick:()=>setPage('new_coaching')},'Coach →'))
             )
           )
         )
@@ -404,133 +431,408 @@ function Dashboard(){
   );
 }
 
-// ── COACHING MODAL ────────────────────────────────────────────────────────────
-function CoachingModal({coaching,agents,onClose,onSave}){
-  const blank={agent_id:'',coaching_date:new Date().toISOString().split('T')[0],call_id:'',hold_procedure:null,closing_call_wrap:null,verification_auth:null,aht:'',conformance:'',adherence:'',nps:'',csat:'',fcr_7days:'',behavior_observed:'',action_plan:'',agent_comments:'',follow_up_date:'',status:'open'};
-  const[form,setForm]=useState(coaching?{...coaching,hold_procedure:coaching.hold_procedure??null,closing_call_wrap:coaching.closing_call_wrap??null,verification_auth:coaching.verification_auth??null}:blank);
-  const[err,setErr]=useState('');
-  const[loading,setLoading]=useState(false);
-  const set=k=>v=>setForm(f=>({...f,[k]:v}));
-  const setE=k=>e=>set(k)(e.target.value);
+// ── AI COACHING GENERATOR ─────────────────────────────────────────────────────
+async function generateCoachingStructure({agent,behaviors,descriptions,kpis}){
+  const behaviorDetails = behaviors.map(bid=>{
+    const b=BEHAVIORS.find(x=>x.id===bid);
+    const desc=descriptions[bid]||'No specific description provided';
+    return `- ${b.full}: ${desc}`;
+  }).join('\n');
 
-  const submit=async()=>{
-    if(!form.agent_id||!form.coaching_date)return setErr('Agent and date are required.');
-    setErr('');setLoading(true);
+  const prompt = `You are an expert call center coaching specialist for a Medicare Supplement (MedSupp) team.
+
+Agent: ${agent.name} (${agent.employee_id})
+Current KPIs — FCR: ${kpis.fcr||'N/A'}%, CSAT: ${kpis.csat||'N/A'}%, MES NPS: ${kpis.nps||'N/A'}
+
+Behaviors to coach:
+${behaviorDetails}
+
+Respond ONLY with a valid JSON object, no markdown, no explanation:
+{
+  "opening": "2-3 sentence positive opening for the coaching conversation",
+  "kpi_connection": "2-3 sentences connecting these behaviors directly to FCR, CSAT, and NPS impact",
+  "observed_behaviors": ["observation 1", "observation 2", "observation 3"],
+  "technique_tips": ["tip 1", "tip 2", "tip 3"],
+  "action_plan": ["step 1 with timeframe", "step 2 with timeframe", "step 3 with timeframe"],
+  "follow_up": "specific follow-up with timeframe and success metrics",
+  "kpi_forecast": {
+    "fcr": {"direction": "up|down|neutral", "reasoning": "one sentence"},
+    "csat": {"direction": "up|down|neutral", "reasoning": "one sentence"},
+    "nps": {"direction": "up|down|neutral", "reasoning": "one sentence"}
+  }
+}`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+  });
+  const data = await res.json();
+  const text = data.content?.find(c=>c.type==='text')?.text||'{}';
+  try{ return JSON.parse(text.replace(/```json|```/g,'').trim()); }
+  catch{ return null; }
+}
+
+// ── NEW COACHING ──────────────────────────────────────────────────────────────
+function NewCoaching({user}){
+  const[agents,setAgents]=useState([]);
+  const[step,setStep]=useState(1);
+  const[form,setForm]=useState({agent_id:'',fcr:'',csat:'',nps:'',call_id:'',coaching_date:new Date().toISOString().split('T')[0]});
+  const[selectedBehaviors,setSelectedBehaviors]=useState([]);
+  const[descriptions,setDescriptions]=useState({});
+  const[structure,setStructure]=useState(null);
+  const[generating,setGenerating]=useState(false);
+  const[saving,setSaving]=useState(false);
+  const[err,setErr]=useState('');
+
+  useEffect(()=>{apiFetch('/agents').then(a=>setAgents(a.filter(x=>x.status==='active'))).catch(()=>{});},[]);
+
+  const selectedAgent=agents.find(a=>a.id===form.agent_id);
+  const setF=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
+  const toggleBehavior=id=>setSelectedBehaviors(s=>s.includes(id)?s.filter(x=>x!==id):[...s,id]);
+
+  const generate=async()=>{
+    if(!selectedBehaviors.length)return setErr('Select at least one behavior.');
+    setErr('');setGenerating(true);setStep(3);
     try{
-      const payload={...form};
-      ['aht','conformance','adherence','nps','csat','fcr_7days'].forEach(k=>{if(payload[k]==='')payload[k]=null;});
-      let saved;
-      if(coaching) saved=await api(`/coachings/${coaching.id}`,{method:'PUT',body:JSON.stringify(payload)});
-      else saved=await api('/coachings',{method:'POST',body:JSON.stringify(payload)});
-      onSave(saved,!!coaching);
-      toast(coaching?'Coaching updated':'Coaching created');
-    }catch(e){setErr(e.message);}
-    setLoading(false);
+      const result=await generateCoachingStructure({
+        agent:selectedAgent,
+        behaviors:selectedBehaviors,
+        descriptions,
+        kpis:{fcr:form.fcr,csat:form.csat,nps:form.nps}
+      });
+      if(result)setStructure(result);
+      else setErr('Could not generate structure. Try again.');
+    }catch(e){setErr('Generation failed: '+e.message);}
+    setGenerating(false);
   };
 
-  return h('div',{className:'overlay',onClick:e=>e.target===e.currentTarget&&onClose()},
-    h('div',{className:'modal'},
-      h('div',{className:'modal-title'},coaching?'Edit Coaching':'New Coaching Session'),
-      err&&h('div',{className:'error-msg'},'⚠ '+err),
-      h('div',{className:'modal-grid'},
-        h('div',{className:'span2'},
-          h('div',{className:'form-section'},'Agent & Session'),
+  const saveCoaching=async()=>{
+    setSaving(true);
+    try{
+      const behaviorNames=selectedBehaviors.map(id=>BEHAVIORS.find(b=>b.id===id)?.name).join(', ');
+      const behaviorDescs=selectedBehaviors.map(id=>{
+        const b=BEHAVIORS.find(x=>x.id===id);
+        return `${b.name}: ${descriptions[id]||''}`;
+      }).join('\n');
+      await apiFetch('/coachings',{method:'POST',body:JSON.stringify({
+        agent_id:form.agent_id,
+        coaching_date:form.coaching_date,
+        call_id:form.call_id,
+        fcr_7days:form.fcr||null,
+        csat:form.csat||null,
+        nps:form.nps||null,
+        behavior_observed:`Behaviors: ${behaviorNames}\n\n${behaviorDescs}`,
+        action_plan:structure?.action_plan?.join('\n')||'',
+        agent_comments:'',
+        status:'open',
+      })});
+      toast('Coaching saved ✓');
+      setStep(1);setForm({agent_id:'',fcr:'',csat:'',nps:'',call_id:'',coaching_date:new Date().toISOString().split('T')[0]});
+      setSelectedBehaviors([]);setDescriptions({});setStructure(null);
+    }catch(e){setErr(e.message);}
+    setSaving(false);
+  };
+
+  const dirIcon=d=>d==='up'?'↑':d==='down'?'↓':'→';
+  const dirColor=d=>d==='up'?'var(--green)':d==='down'?'var(--red)':'var(--amber)';
+
+  const steps=[{n:1,label:'Agent & KPIs'},{n:2,label:'Behaviors'},{n:3,label:'AI Structure'}];
+
+  return h('div',null,
+    h('div',{className:'ph'},
+      h('div',null,
+        h('div',{className:'ph-title'},'New Coaching Session'),
+        h('div',{className:'ph-sub'},'Behavior-driven coaching with KPI impact analysis')
+      )
+    ),
+
+    // Step bar
+    h('div',{className:'step-bar'},
+      steps.map((s,i)=>h(Fragment,{key:s.n},
+        h('div',{
+          className:'step-item',
+          style:{
+            background:step===s.n?'var(--amber-dim)':step>s.n?'var(--green-dim)':'transparent',
+            border:`1px solid ${step===s.n?'var(--amber)':step>s.n?'var(--green)':'var(--border)'}`,
+            color:step===s.n?'var(--amber)':step>s.n?'var(--green)':'var(--muted)',
+            cursor:step>s.n?'pointer':'default'
+          },
+          onClick:()=>step>s.n&&setStep(s.n)
+        },
+          h('span',{style:{fontFamily:'Syne,sans-serif',fontWeight:700}},s.n),s.label
         ),
+        i<2&&h('div',{className:'step-sep'})
+      ))
+    ),
+
+    err&&h('div',{className:'error-msg'},err),
+
+    // STEP 1
+    step===1&&h('div',{className:'card'},
+      h('div',{className:'card-head'},
         h('div',null,
-          h('label',null,'Agent *'),
-          h('select',{value:form.agent_id,onChange:setE('agent_id')},
-            h('option',{value:''},'Select agent…'),
-            agents.map(a=>h('option',{key:a.id,value:a.id},`${a.name} (${a.employee_id})`))
-          )
-        ),
-        h('div',null,h('label',null,'Date *'),h('input',{type:'date',value:form.coaching_date,onChange:setE('coaching_date')})),
-        h('div',null,h('label',null,'Call ID'),h('input',{value:form.call_id||'',onChange:setE('call_id'),placeholder:'CALL-XXXXX'})),
-        h('div',null,
-          h('label',null,'Status'),
-          h('select',{value:form.status,onChange:setE('status')},
-            ['open','in_progress','closed'].map(s=>h('option',{key:s,value:s},s.replace('_',' ')))
-          )
-        ),
-
-        h('div',{className:'span2'},h('div',{className:'form-section'},'Hygiene KPIs (1–5)')),
-        h('div',null,h('label',null,'Hold Procedure'),h(Stars,{value:form.hold_procedure||0,onChange:set('hold_procedure'),name:'hold'})),
-        h('div',null,h('label',null,'Closing / Call Wrap'),h(Stars,{value:form.closing_call_wrap||0,onChange:set('closing_call_wrap'),name:'closing'})),
-        h('div',null,h('label',null,'Verification / Auth'),h(Stars,{value:form.verification_auth||0,onChange:set('verification_auth'),name:'verif'})),
-        h('div',null,h('label',null,'AHT (seconds)'),h('input',{type:'number',value:form.aht||'',onChange:setE('aht'),placeholder:'e.g. 420'})),
-
-        h('div',{className:'span2'},h('div',{className:'form-section'},'Performance KPIs')),
-        h('div',null,h('label',null,'Conformance %'),h('input',{type:'number',value:form.conformance||'',onChange:setE('conformance'),placeholder:'0–100'})),
-        h('div',null,h('label',null,'Adherence %'),h('input',{type:'number',value:form.adherence||'',onChange:setE('adherence'),placeholder:'0–100'})),
-        h('div',null,h('label',null,'NPS'),h('input',{type:'number',value:form.nps||'',onChange:setE('nps'),placeholder:'-100 to 100'})),
-        h('div',null,h('label',null,'CSAT %'),h('input',{type:'number',value:form.csat||'',onChange:setE('csat'),placeholder:'0–100'})),
-        h('div',null,h('label',null,'FCR 7 Days %'),h('input',{type:'number',value:form.fcr_7days||'',onChange:setE('fcr_7days'),placeholder:'0–100'})),
-        h('div',null,h('label',null,'Follow-up Date'),h('input',{type:'date',value:form.follow_up_date||'',onChange:setE('follow_up_date')})),
-
-        h('div',{className:'span2'},h('div',{className:'form-section'},'Coaching Notes')),
-        h('div',{className:'span2'},h('label',null,'Behavior Observed'),h('textarea',{value:form.behavior_observed||'',onChange:setE('behavior_observed'),placeholder:'Describe behaviors observed during the call…'})),
-        h('div',{className:'span2'},h('label',null,'Action Plan'),h('textarea',{value:form.action_plan||'',onChange:setE('action_plan'),placeholder:'Steps the agent will take to improve…'})),
-        h('div',{className:'span2'},h('label',null,'Agent Comments'),h('textarea',{value:form.agent_comments||'',onChange:setE('agent_comments'),placeholder:'Agent acknowledgment or comments…'}))
+          h('div',{className:'card-title'},'Select Agent & Enter Current KPIs'),
+          h('div',{className:'card-sub'},'KPIs give the AI context to personalize the coaching structure')
+        )
       ),
-      h('div',{className:'modal-actions'},
-        h('button',{className:'btn btn-primary',onClick:submit,disabled:loading,style:{flex:1}},loading?'…':coaching?'Save Changes':'Create Coaching'),
-        h('button',{className:'btn btn-ghost',onClick:onClose},'Cancel')
+      h('div',{className:'card-body'},
+        h('div',{className:'modal-grid2'},
+          h('div',null,
+            h('label',null,'Agent *'),
+            h('select',{value:form.agent_id,onChange:setF('agent_id')},
+              h('option',{value:''},'Select agent…'),
+              agents.map(a=>h('option',{key:a.id,value:a.id},`${a.name} (${a.employee_id})`))
+            )
+          ),
+          h('div',null,h('label',null,'Coaching Date'),h('input',{type:'date',value:form.coaching_date,onChange:setF('coaching_date')})),
+          h('div',null,h('label',null,'Call ID (optional)'),h('input',{value:form.call_id,onChange:setF('call_id'),placeholder:'CALL-XXXXX'})),
+          h('div',null)
+        ),
+        h('div',{style:{fontSize:'.6rem',textTransform:'uppercase',letterSpacing:'.15em',color:'var(--amber)',margin:'1rem 0 .6rem',paddingBottom:'.35rem',borderBottom:'1px solid var(--border)'}},'Current KPI Scores'),
+        h('div',{className:'modal-grid2'},
+          h('div',null,h('label',null,'FCR 7-Day %'),h('input',{type:'number',value:form.fcr,onChange:setF('fcr'),placeholder:'e.g. 72'})),
+          h('div',null,h('label',null,'CSAT %'),h('input',{type:'number',value:form.csat,onChange:setF('csat'),placeholder:'e.g. 81'})),
+          h('div',null,h('label',null,'MES NPS'),h('input',{type:'number',value:form.nps,onChange:setF('nps'),placeholder:'e.g. 38'})),
+          h('div',null)
+        ),
+        // KPI mini-display
+        (form.fcr||form.csat||form.nps)&&h('div',{className:'impact-grid',style:{marginTop:'.5rem'}},
+          [
+            {k:'fcr',val:form.fcr,good:80,label:'FCR 7-Day'},
+            {k:'csat',val:form.csat,good:85,label:'CSAT'},
+            {k:'nps',val:form.nps,good:50,label:'MES NPS',isNps:true},
+          ].map(({k,val,good,label,isNps})=>{
+            if(!val)return null;
+            const n=Number(val);
+            const isGood=n>=good;
+            return h('div',{key:k,className:'impact-kpi'},
+              h('div',{className:'impact-kpi-name'},label),
+              h('div',{style:{fontSize:'1.5rem',fontFamily:'Syne,sans-serif',fontWeight:800,color:isGood?'var(--green)':n>=(good-15)?'var(--amber)':'var(--red)'}},
+                isNps?val:`${val}%`
+              ),
+              h('div',{style:{fontSize:'.62rem',color:'var(--muted)',marginTop:'.2rem'}},isGood?'✓ On target':'⚠ Below target')
+            );
+          }).filter(Boolean)
+        ),
+        h('div',{style:{display:'flex',justifyContent:'flex-end',marginTop:'1rem'}},
+          h('button',{className:'btn btn-primary',onClick:()=>{if(!form.agent_id)return setErr('Select an agent first.');setErr('');setStep(2);}},'Select Behaviors →')
+        )
+      )
+    ),
+
+    // STEP 2
+    step===2&&h('div',null,
+      h('div',{className:'card'},
+        h('div',{className:'card-head'},
+          h('div',null,
+            h('div',{className:'card-title'},'Select Behaviors to Coach'),
+            h('div',{className:'card-sub'},`${selectedBehaviors.length} selected · Choose all that apply from the call you reviewed`)
+          )
+        ),
+        h('div',{className:'card-body'},
+          h('div',{className:'behavior-grid'},
+            BEHAVIORS.map(b=>{
+              const sel=selectedBehaviors.includes(b.id);
+              return h('div',{key:b.id,className:`behavior-card ${sel?'selected':''}`,onClick:()=>toggleBehavior(b.id)},
+                h('div',{style:{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'.2rem'}},
+                  h('div',{className:'bname'},b.name),
+                  sel&&h('span',{style:{color:'var(--amber)',fontSize:'.8rem'}},'✓')
+                ),
+                h('div',{className:'bfull'},b.full),
+                h('div',{style:{display:'flex',flexWrap:'wrap'}},
+                  Object.entries(b.kpiImpact).map(([kpi,dir])=>
+                    h('span',{key:kpi,className:`kpi-tag ${dir}`},
+                      KPI_INFO[kpi].label,' ',dir==='pos'?'↑':dir==='neg'?'↓':'→'
+                    )
+                  )
+                )
+              );
+            })
+          )
+        )
+      ),
+
+      selectedBehaviors.length>0&&h('div',{className:'card'},
+        h('div',{className:'card-head'},
+          h('div',null,
+            h('div',{className:'card-title'},'Describe What You Observed'),
+            h('div',{className:'card-sub'},'The more specific you are, the better the AI-generated coaching structure')
+          )
+        ),
+        h('div',{className:'card-body'},
+          selectedBehaviors.map(bid=>{
+            const b=BEHAVIORS.find(x=>x.id===bid);
+            return h('div',{key:bid,style:{marginBottom:'1rem'}},
+              h('label',null,b.name,' — ',b.full),
+              h('textarea',{
+                value:descriptions[bid]||'',
+                onChange:e=>setDescriptions(d=>({...d,[bid]:e.target.value})),
+                placeholder:`What specifically did you observe? e.g. "Agent placed member on hold without announcing it, then returned without acknowledging the wait time."`,
+                style:{marginBottom:0}
+              })
+            );
+          })
+        )
+      ),
+
+      h('div',{style:{display:'flex',justifyContent:'space-between',marginTop:'1rem'}},
+        h('button',{className:'btn btn-ghost',onClick:()=>setStep(1)},'← Back'),
+        h('button',{
+          className:'btn btn-ai',
+          onClick:generate,
+          disabled:generating||selectedBehaviors.length===0
+        },
+          generating
+            ?h(Fragment,null,h('div',{className:'ai-dots'},h('span'),h('span'),h('span')),' Generating…')
+            :'✦ Generate Coaching Structure'
+        )
+      )
+    ),
+
+    // STEP 3
+    step===3&&h('div',null,
+      generating&&h('div',{className:'card'},
+        h('div',{className:'ai-loading'},
+          h('div',{className:'ai-dots'},h('span'),h('span'),h('span')),
+          'Analyzing behaviors and building your personalized coaching structure…'
+        )
+      ),
+
+      !generating&&structure&&h('div',null,
+        // KPI Forecast
+        h('div',{className:'card'},
+          h('div',{className:'card-head'},
+            h('div',null,
+              h('div',{className:'card-title'},'KPI Impact Forecast'),
+              h('div',{className:'card-sub'},'Expected movement if these behaviors are improved')
+            )
+          ),
+          h('div',{className:'card-body'},
+            h('div',{className:'impact-grid'},
+              ['fcr','csat','nps'].map(k=>{
+                const f=structure.kpi_forecast?.[k];
+                if(!f)return null;
+                return h('div',{key:k,className:'impact-kpi'},
+                  h('div',{className:'impact-kpi-name'},KPI_INFO[k].full),
+                  h('div',{className:'impact-kpi-arrow',style:{color:dirColor(f.direction)}},dirIcon(f.direction)),
+                  h('div',{className:'impact-kpi-text'},f.reasoning)
+                );
+              }).filter(Boolean)
+            )
+          )
+        ),
+
+        // Coaching Structure
+        h('div',{className:'card'},
+          h('div',{className:'card-head'},
+            h('div',null,
+              h('div',{className:'card-title'},'✦ Coaching Structure'),
+              h('div',{className:'card-sub'},`${selectedAgent?.name} · ${selectedBehaviors.map(id=>BEHAVIORS.find(b=>b.id===id)?.name).join(', ')}`)
+            )
+          ),
+          h('div',{className:'card-body'},
+            h('div',{className:'coaching-output'},
+              h('div',{className:'co-section'},
+                h('div',{className:'co-label'},'① Opening Statement'),
+                h('div',{className:'co-content'},structure.opening)
+              ),
+              h('div',{className:'co-section'},
+                h('div',{className:'co-label'},'② KPI Connection'),
+                h('div',{className:'co-content'},structure.kpi_connection)
+              ),
+              h('div',{className:'co-section'},
+                h('div',{className:'co-label'},'③ Observed Behaviors'),
+                h('ol',{className:'co-steps'},
+                  (structure.observed_behaviors||[]).map((obs,i)=>h('li',{key:i,'data-n':`${i+1}`},obs))
+                )
+              ),
+              h('div',{className:'co-section'},
+                h('div',{className:'co-label'},'④ Technique Tips'),
+                h('ol',{className:'co-steps'},
+                  (structure.technique_tips||[]).map((tip,i)=>h('li',{key:i,'data-n':`${i+1}`},tip))
+                )
+              ),
+              h('div',{className:'co-section'},
+                h('div',{className:'co-label'},'⑤ Action Plan'),
+                h('ol',{className:'co-steps'},
+                  (structure.action_plan||[]).map((s,i)=>h('li',{key:i,'data-n':`${i+1}`},s))
+                )
+              ),
+              h('div',{className:'co-section'},
+                h('div',{className:'co-label'},'⑥ Follow-Up'),
+                h('div',{className:'co-content'},structure.follow_up)
+              )
+            )
+          )
+        ),
+
+        h('div',{style:{display:'flex',gap:'.75rem',justifyContent:'space-between',marginTop:'1rem'}},
+          h('button',{className:'btn btn-ghost',onClick:()=>setStep(2)},'← Edit Behaviors'),
+          h('div',{style:{display:'flex',gap:'.75rem'}},
+            h('button',{className:'btn btn-ai',onClick:generate,disabled:generating},'↺ Regenerate'),
+            h('button',{className:'btn btn-primary',onClick:saveCoaching,disabled:saving},saving?'Saving…':'Save Coaching ✓')
+          )
+        )
       )
     )
   );
 }
 
-// ── COACHINGS PAGE ────────────────────────────────────────────────────────────
-function Coachings({user}){
+// ── COACHING HISTORY ──────────────────────────────────────────────────────────
+function CoachingHistory(){
   const[coachings,setCoachings]=useState([]);
-  const[agents,setAgents]=useState([]);
   const[loading,setLoading]=useState(true);
-  const[modal,setModal]=useState(null);
   const[search,setSearch]=useState('');
   const[filterStatus,setFilterStatus]=useState('');
+  const[selected,setSelected]=useState(null);
 
-  const load=useCallback(async()=>{
-    const[c,a]=await Promise.all([api('/coachings'),api('/agents')]);
-    setCoachings(c);setAgents(a);setLoading(false);
+  useEffect(()=>{
+    apiFetch('/coachings').then(c=>{setCoachings(c);setLoading(false);}).catch(()=>setLoading(false));
   },[]);
-
-  useEffect(()=>{load();},[load]);
 
   const del=async id=>{
     if(!confirm('Delete this coaching?'))return;
-    await api(`/coachings/${id}`,{method:'DELETE'});
+    await apiFetch(`/coachings/${id}`,{method:'DELETE'});
     setCoachings(c=>c.filter(x=>x.id!==id));
-    toast('Coaching deleted','error');
+    if(selected?.id===id)setSelected(null);
+    toast('Deleted','error');
   };
 
-  const onSave=(saved,isEdit)=>{
-    if(isEdit)setCoachings(c=>c.map(x=>x.id===saved.id?saved:x));
-    else setCoachings(c=>[saved,...c]);
-    setModal(null);
+  const updateStatus=async(id,status)=>{
+    await apiFetch(`/coachings/${id}`,{method:'PUT',body:JSON.stringify({status})});
+    setCoachings(c=>c.map(x=>x.id===id?{...x,status}:x));
+    if(selected?.id===id)setSelected(s=>({...s,status}));
+    toast('Status updated');
   };
 
   const filtered=coachings.filter(c=>{
     const q=search.toLowerCase();
-    const match=!q||(c.agents?.name||'').toLowerCase().includes(q)||(c.call_id||'').toLowerCase().includes(q);
-    const st=!filterStatus||c.status===filterStatus;
-    return match&&st;
+    return(!q||(c.agents?.name||'').toLowerCase().includes(q)||(c.call_id||'').toLowerCase().includes(q))&&
+           (!filterStatus||c.status===filterStatus);
   });
 
-  const exportExcel=()=>window.open(API+'/export/excel?token='+localStorage.getItem('pulse_token'));
+  const kpiColor=(val,good,isNps)=>{
+    if(val==null)return 'var(--muted)';
+    const n=Number(val);
+    if(isNps)return n>=50?'var(--green)':'var(--red)';
+    return n>=good?'var(--green)':'var(--red)';
+  };
 
   return h('div',null,
     h('div',{className:'ph'},
-      h('div',{className:'ph-title'},'Coachings'),
-      h('div',{className:'ph-actions'},
-        h('button',{className:'btn btn-green btn-sm',onClick:exportExcel},'↓ Excel'),
-        h('button',{className:'btn btn-primary',onClick:()=>setModal('new')},'+ New Coaching')
-      )
-    ),
-    h('div',{style:{display:'flex',gap:'.75rem',marginBottom:'1rem',alignItems:'center'}},
-      h('div',{className:'search-wrap',style:{flex:1,margin:0}},
-        h('span',{className:'search-icon'},'⌕'),
-        h('input',{value:search,onChange:e=>setSearch(e.target.value),placeholder:'Search agent or call ID…',style:{margin:0}})
+      h('div',null,
+        h('div',{className:'ph-title'},'Coaching History'),
+        h('div',{className:'ph-sub'},`${coachings.length} total sessions`)
       ),
-      h('select',{value:filterStatus,onChange:e=>setFilterStatus(e.target.value),style:{margin:0,width:'140px'}},
+      h('button',{className:'btn btn-ghost btn-sm',onClick:()=>window.open(API+'/export/excel?token='+localStorage.getItem('pulse_token'))},'↓ Export Excel')
+    ),
+    h('div',{className:'search-row'},
+      h('div',{className:'search-wrap'},
+        h('span',{className:'search-icon'},'⌕'),
+        h('input',{value:search,onChange:e=>setSearch(e.target.value),placeholder:'Search by agent name or call ID…'})
+      ),
+      h('select',{value:filterStatus,onChange:e=>setFilterStatus(e.target.value),style:{margin:0,width:'150px'}},
         h('option',{value:''},'All statuses'),
         ['open','in_progress','closed'].map(s=>h('option',{key:s,value:s},s.replace('_',' ')))
       )
@@ -540,74 +842,111 @@ function Coachings({user}){
       filtered.length===0?h('div',{className:'empty'},'No coachings found.'):
       h('table',null,
         h('thead',null,h('tr',null,
-          ['Date','Agent','Call ID','Hold','Closing','Verif','AHT','Conform%','NPS','CSAT%','FCR7d%','Status',''].map(c=>h('th',{key:c},c))
+          ['Date','Agent','Call ID','FCR','CSAT','NPS','Behaviors','Status',''].map(c=>h('th',{key:c},c))
         )),
         h('tbody',null,
-          filtered.map(c=>h('tr',{key:c.id},
-            h('td',null,h('div',null,c.coaching_date),h('div',{style:{fontSize:'.65rem',color:'var(--muted)'}},c.agents?.employee_id||'')),
-            h('td',null,h('div',null,c.agents?.name||'—')),
-            h('td',null,c.call_id||'—'),
-            h('td',null,h(ScoreChip,{val:c.hold_procedure})),
-            h('td',null,h(ScoreChip,{val:c.closing_call_wrap})),
-            h('td',null,h(ScoreChip,{val:c.verification_auth})),
-            h('td',null,c.aht?`${c.aht}s`:'—'),
-            h('td',null,c.conformance?`${c.conformance}%`:'—'),
-            h('td',null,c.nps??'—'),
-            h('td',null,c.csat?`${c.csat}%`:'—'),
-            h('td',null,c.fcr_7days?`${c.fcr_7days}%`:'—'),
-            h('td',null,h('span',{className:`badge badge-${c.status}`},c.status.replace('_',' '))),
-            h('td',null,h('div',{style:{display:'flex',gap:'.4rem'}},
-              h('button',{className:'btn btn-ghost btn-sm',onClick:()=>setModal(c)},'Edit'),
-              h('button',{className:'btn btn-danger btn-sm',onClick:()=>del(c.id)},'Del'),
-              h('button',{className:'btn btn-ghost btn-sm',onClick:()=>window.open(`${API}/export/pdf/${c.agent_id}`)},'PDF')
-            ))
-          ))
+          filtered.map(c=>{
+            const behaviorLine=(c.behavior_observed||'').split('\n')[0].replace('Behaviors: ','');
+            return h('tr',{key:c.id},
+              h('td',null,c.coaching_date),
+              h('td',null,
+                h('div',null,c.agents?.name||'—'),
+                h('div',{style:{fontSize:'.62rem',color:'var(--muted)'}},c.agents?.employee_id)
+              ),
+              h('td',null,c.call_id||'—'),
+              h('td',null,c.fcr_7days?h('span',{style:{color:kpiColor(c.fcr_7days,80)}},`${c.fcr_7days}%`):'—'),
+              h('td',null,c.csat?h('span',{style:{color:kpiColor(c.csat,85)}},`${c.csat}%`):'—'),
+              h('td',null,c.nps!=null?h('span',{style:{color:kpiColor(c.nps,50,true)}},c.nps):'—'),
+              h('td',null,h('div',{style:{fontSize:'.65rem',color:'var(--muted)',maxWidth:'150px',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}},behaviorLine||'—')),
+              h('td',null,h('span',{className:`badge badge-${c.status}`},c.status.replace('_',' '))),
+              h('td',null,
+                h('div',{style:{display:'flex',gap:'.35rem'}},
+                  h('button',{className:'btn btn-ghost btn-sm',onClick:()=>setSelected(c)},'View'),
+                  h('button',{className:'btn btn-danger btn-sm',onClick:()=>del(c.id)},'Del')
+                )
+              )
+            );
+          })
         )
       )
     ),
-    modal&&h(CoachingModal,{coaching:modal==='new'?null:modal,agents,onClose:()=>setModal(null),onSave})
+
+    selected&&h('div',{className:'overlay',onClick:e=>e.target===e.currentTarget&&setSelected(null)},
+      h('div',{className:'modal'},
+        h('div',{className:'modal-title'},`Coaching — ${selected.agents?.name}`),
+        h('div',{className:'modal-sub'},`${selected.coaching_date} · Call ${selected.call_id||'N/A'}`),
+        h('div',{style:{display:'flex',gap:'.5rem',marginBottom:'1rem'}},
+          ['open','in_progress','closed'].map(s=>
+            h('button',{key:s,className:`btn btn-sm ${selected.status===s?'btn-primary':'btn-ghost'}`,onClick:()=>updateStatus(selected.id,s)},s.replace('_',' '))
+          )
+        ),
+        h('div',{className:'modal-section'},'KPIs at Time of Coaching'),
+        h('div',{className:'impact-grid'},
+          [['fcr_7days','FCR 7d',80,false],['csat','CSAT',85,false],['nps','MES NPS',50,true]].map(([k,label,good,isNps])=>{
+            const val=selected[k];
+            const isGood=val!=null&&Number(val)>=good;
+            return h('div',{key:k,className:'impact-kpi'},
+              h('div',{className:'impact-kpi-name'},label),
+              h('div',{style:{fontSize:'1.4rem',fontFamily:'Syne,sans-serif',fontWeight:800,color:val==null?'var(--muted)':isGood?'var(--green)':'var(--red)'}},
+                val!=null?(isNps?val:`${val}%`):'—'
+              )
+            );
+          })
+        ),
+        selected.behavior_observed&&h('div',null,
+          h('div',{className:'modal-section'},'Behavior Observations'),
+          h('div',{style:{fontSize:'.78rem',color:'var(--text2)',lineHeight:'1.8',background:'var(--surface2)',borderRadius:'8px',padding:'1rem'}},
+            selected.behavior_observed.split('\n').map((line,i)=>h('div',{key:i},line||h('br')))
+          )
+        ),
+        selected.action_plan&&h('div',null,
+          h('div',{className:'modal-section'},'Action Plan'),
+          h('div',{style:{fontSize:'.78rem',color:'var(--text2)',lineHeight:'1.8',background:'var(--surface2)',borderRadius:'8px',padding:'1rem'}},
+            selected.action_plan.split('\n').map((line,i)=>h('div',{key:i},line||h('br')))
+          )
+        ),
+        h('div',{style:{display:'flex',justifyContent:'flex-end',marginTop:'1.25rem'}},
+          h('button',{className:'btn btn-ghost',onClick:()=>setSelected(null)},'Close')
+        )
+      )
+    )
   );
 }
 
-// ── AGENTS PAGE ───────────────────────────────────────────────────────────────
+// ── AGENTS ────────────────────────────────────────────────────────────────────
 function Agents(){
   const[agents,setAgents]=useState([]);
   const[loading,setLoading]=useState(true);
   const[modal,setModal]=useState(null);
   const[search,setSearch]=useState('');
-
-  const load=useCallback(async()=>{
-    const a=await api('/agents');setAgents(a);setLoading(false);
-  },[]);
+  const load=useCallback(async()=>{const a=await apiFetch('/agents');setAgents(a);setLoading(false);},[]);
   useEffect(()=>{load();},[load]);
-
   const del=async id=>{
-    if(!confirm('Delete agent and all their coachings?'))return;
-    await api(`/agents/${id}`,{method:'DELETE'});
+    if(!confirm('Delete agent?'))return;
+    await apiFetch(`/agents/${id}`,{method:'DELETE'});
     setAgents(a=>a.filter(x=>x.id!==id));
     toast('Agent deleted','error');
   };
-
   const onSave=(saved,isEdit)=>{
     if(isEdit)setAgents(a=>a.map(x=>x.id===saved.id?saved:x));
     else setAgents(a=>[...a,saved]);
     setModal(null);
     toast(isEdit?'Agent updated':'Agent created');
   };
-
   const filtered=agents.filter(a=>{
     const q=search.toLowerCase();
-    return !q||a.name.toLowerCase().includes(q)||a.employee_id.toLowerCase().includes(q)||a.email.toLowerCase().includes(q);
+    return!q||a.name.toLowerCase().includes(q)||a.employee_id.toLowerCase().includes(q)||a.email.toLowerCase().includes(q);
   });
-
   return h('div',null,
     h('div',{className:'ph'},
-      h('div',{className:'ph-title'},'Agents'),
+      h('div',null,h('div',{className:'ph-title'},'Agents')),
       h('button',{className:'btn btn-primary',onClick:()=>setModal('new')},'+ New Agent')
     ),
-    h('div',{className:'search-wrap'},
-      h('span',{className:'search-icon'},'⌕'),
-      h('input',{value:search,onChange:e=>setSearch(e.target.value),placeholder:'Search by name, ID or email…'})
+    h('div',{className:'search-row'},
+      h('div',{className:'search-wrap'},
+        h('span',{className:'search-icon'},'⌕'),
+        h('input',{value:search,onChange:e=>setSearch(e.target.value),placeholder:'Search by name, ID or email…'})
+      )
     ),
     loading?h('div',{className:'loading'},'Loading…'):
     h('div',{className:'tbl-wrap'},
@@ -617,7 +956,7 @@ function Agents(){
         h('tbody',null,
           filtered.map(a=>h('tr',{key:a.id},
             h('td',null,h('div',{style:{display:'flex',alignItems:'center',gap:'.6rem'}},
-              h('div',{className:'avatar',style:{width:'26px',height:'26px',fontSize:'.65rem'}},a.name[0]),a.name
+              h('div',{className:'avatar',style:{width:'26px',height:'26px',fontSize:'.62rem'}},a.name[0]),a.name
             )),
             h('td',null,a.employee_id),
             h('td',null,a.email),
@@ -642,29 +981,29 @@ function AgentModal({agent,onClose,onSave}){
   const[err,setErr]=useState('');
   const[loading,setLoading]=useState(false);
   const setE=k=>e=>setForm(f=>({...f,[k]:e.target.value}));
-
   const submit=async()=>{
     if(!form.name||!form.employee_id||!form.email)return setErr('Name, Employee ID and Email are required.');
     setErr('');setLoading(true);
     try{
       let saved;
-      if(agent)saved=await api(`/agents/${agent.id}`,{method:'PUT',body:JSON.stringify(form)});
-      else saved=await api('/agents',{method:'POST',body:JSON.stringify(form)});
+      if(agent)saved=await apiFetch(`/agents/${agent.id}`,{method:'PUT',body:JSON.stringify(form)});
+      else saved=await apiFetch('/agents',{method:'POST',body:JSON.stringify(form)});
       onSave(saved,!!agent);
     }catch(e){setErr(e.message);}
     setLoading(false);
   };
-
   return h('div',{className:'overlay',onClick:e=>e.target===e.currentTarget&&onClose()},
     h('div',{className:'modal',style:{maxWidth:'440px'}},
       h('div',{className:'modal-title'},agent?'Edit Agent':'New Agent'),
-      err&&h('div',{className:'error-msg'},'⚠ '+err),
+      err&&h('div',{className:'error-msg'},err),
       h('label',null,'Full Name *'),h('input',{value:form.name,onChange:setE('name'),placeholder:'Maria González'}),
       h('label',null,'Employee ID *'),h('input',{value:form.employee_id,onChange:setE('employee_id'),placeholder:'EMP006'}),
-      h('label',null,'Email *'),h('input',{type:'email',value:form.email,onChange:setE('email'),placeholder:'agent@teleperformance.com'}),
+      h('label',null,'Email *'),h('input',{type:'email',value:form.email,onChange:setE('email'),placeholder:'agent@company.com'}),
       h('label',null,'Team'),h('input',{value:form.team||'',onChange:setE('team'),placeholder:'MedSupp Team A'}),
       h('label',null,'Hire Date'),h('input',{type:'date',value:form.hire_date||'',onChange:setE('hire_date')}),
-      h('label',null,'Status'),h('select',{value:form.status,onChange:setE('status')},h('option',{value:'active'},'Active'),h('option',{value:'inactive'},'Inactive')),
+      h('label',null,'Status'),h('select',{value:form.status,onChange:setE('status')},
+        h('option',{value:'active'},'Active'),h('option',{value:'inactive'},'Inactive')
+      ),
       h('div',{className:'modal-actions'},
         h('button',{className:'btn btn-primary',onClick:submit,disabled:loading,style:{flex:1}},loading?'…':agent?'Save':'Create Agent'),
         h('button',{className:'btn btn-ghost',onClick:onClose},'Cancel')
@@ -673,25 +1012,25 @@ function AgentModal({agent,onClose,onSave}){
   );
 }
 
-// ── APP SHELL ─────────────────────────────────────────────────────────────────
+// ── APP ───────────────────────────────────────────────────────────────────────
 function App(){
   const[user,setUser]=useState(null);
   const[page,setPage]=useState('dashboard');
   const[booting,setBooting]=useState(true);
-
   useEffect(()=>{
     const token=localStorage.getItem('pulse_token');
-    if(token){api('/auth/me').then(u=>setUser(u)).catch(()=>localStorage.removeItem('pulse_token')).finally(()=>setBooting(false));}
+    if(token){apiFetch('/auth/me').then(u=>setUser(u)).catch(()=>localStorage.removeItem('pulse_token')).finally(()=>setBooting(false));}
     else setBooting(false);
   },[]);
-
   const logout=()=>{localStorage.removeItem('pulse_token');setUser(null);setPage('dashboard');};
-
   if(booting)return h('div',{className:'loading',style:{paddingTop:'45vh'}},'Loading…');
-  if(!user)return h(AuthPage,{onLogin:u=>setUser(u)});
-
-  const content=page==='dashboard'?h(Dashboard):page==='coachings'?h(Coachings,{user}):page==='agents'?h(Agents):null;
-
+  if(!user)return h(Fragment,null,h(AuthPage,{onLogin:u=>setUser(u)}),h(Toast));
+  const content={
+    dashboard:h(Dashboard,{setPage}),
+    new_coaching:h(NewCoaching,{user}),
+    coachings:h(CoachingHistory),
+    agents:h(Agents),
+  }[page]||null;
   return h('div',{className:'app'},
     h(Sidebar,{user,page,setPage,onLogout:logout}),
     h('main',{className:'main'},content),
