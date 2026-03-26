@@ -439,26 +439,47 @@ async function generateCoachingStructure({agent,behaviors,descriptions,kpis}){
     return `- ${b.full}: ${desc}`;
   }).join('\n');
 
-  const prompt = `You are an expert call center coaching specialist for a Medicare Supplement (MedSupp) team.
+const prompt = `You are a senior call center coaching specialist with 10+ years experience in Medicare Supplement (MedSupp) insurance customer service at Teleperformance.
 
 Agent: ${agent.name} (${agent.employee_id})
-Current KPIs — FCR: ${kpis.fcr||'N/A'}%, CSAT: ${kpis.csat||'N/A'}%, MES NPS: ${kpis.nps||'N/A'}
+Current KPIs:
+- FCR 7-Day: ${kpis.fcr||'N/A'}% (target ≥80%)
+- CSAT: ${kpis.csat||'N/A'}% (target ≥85%)
+- MES NPS: ${kpis.nps||'N/A'} (target ≥50)
 
-Behaviors to coach:
+Behaviors observed during call review:
 ${behaviorDetails}
 
-Respond ONLY with a valid JSON object, no markdown, no explanation:
+Generate a thorough, specific, actionable coaching session structure for a supervisor to use with this agent. Be concrete — reference MedSupp-specific scenarios (benefits questions, claims, prior auth, enrollment). Avoid generic advice.
+
+Respond ONLY with a valid JSON object, no markdown, no preamble:
 {
-  "opening": "2-3 sentence positive opening for the coaching conversation",
-  "kpi_connection": "2-3 sentences connecting these behaviors directly to FCR, CSAT, and NPS impact",
-  "observed_behaviors": ["observation 1", "observation 2", "observation 3"],
-  "technique_tips": ["tip 1", "tip 2", "tip 3"],
-  "action_plan": ["step 1 with timeframe", "step 2 with timeframe", "step 3 with timeframe"],
-  "follow_up": "specific follow-up with timeframe and success metrics",
+  "opening": "3-4 sentences: acknowledge something the agent did well, then transition naturally into the coaching topic. Be specific and genuine.",
+  "kpi_connection": "3-4 sentences explaining exactly HOW these specific behaviors are directly causing the current KPI scores and what improvement looks like numerically.",
+  "observed_behaviors": [
+    "Detailed observation 1 with specific example of what was heard or seen on the call",
+    "Detailed observation 2 with specific example",
+    "Detailed observation 3 with specific example",
+    "Detailed observation 4 with specific example"
+  ],
+  "technique_tips": [
+    "Specific tip 1 with exact scripting or phrasing the agent can use on the next call",
+    "Specific tip 2 with exact scripting or phrasing",
+    "Specific tip 3 with exact scripting or phrasing",
+    "Specific tip 4 with a roleplay scenario to practice"
+  ],
+  "action_plan": [
+    "Step 1: specific action with clear deadline (e.g. 'Within 24 hours: ...')",
+    "Step 2: specific action with clear deadline (e.g. 'By end of week: ...')",
+    "Step 3: specific action with clear deadline (e.g. 'Within 2 weeks: ...')",
+    "Step 4: measurable milestone to confirm improvement"
+  ],
+  "follow_up": "Specific follow-up plan: what the supervisor will monitor, which calls to pull, exact date for check-in, and the specific KPI targets that will signal success.",
+  "roleplay_scenario": "A detailed MedSupp call scenario (2-3 sentences describing the member situation) that the supervisor can use to practice these behaviors with the agent right now during the coaching session.",
   "kpi_forecast": {
-    "fcr": {"direction": "up|down|neutral", "reasoning": "one sentence"},
-    "csat": {"direction": "up|down|neutral", "reasoning": "one sentence"},
-    "nps": {"direction": "up|down|neutral", "reasoning": "one sentence"}
+    "fcr": {"direction": "up|down|neutral", "reasoning": "Specific 1-2 sentence explanation of expected FCR movement and why"},
+    "csat": {"direction": "up|down|neutral", "reasoning": "Specific 1-2 sentence explanation of expected CSAT movement and why"},
+    "nps": {"direction": "up|down|neutral", "reasoning": "Specific 1-2 sentence explanation of expected NPS movement and why"}
   }
 }`;
 
@@ -768,6 +789,12 @@ function NewCoaching({user}){
             )
           )
         ),
+        structure.roleplay_scenario && h('div',{className:'co-section'},
+  h('div',{className:'co-label'},'⑦ Roleplay Scenario'),
+  h('div',{className:'co-content',style:{background:'var(--purple-dim)',border:'1px solid rgba(167,139,250,.2)',borderRadius:'8px',padding:'1rem',color:'var(--text)'}},
+    structure.roleplay_scenario
+  )
+),
 
         h('div',{style:{display:'flex',gap:'.75rem',justifyContent:'space-between',marginTop:'1rem'}},
           h('button',{className:'btn btn-ghost',onClick:()=>setStep(2)},'← Edit Behaviors'),

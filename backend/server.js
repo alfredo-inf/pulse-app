@@ -271,18 +271,23 @@ app.post("/api/ai/coaching", auth, async (req, res) => {
       },
       body: JSON.stringify({
         model: "claude-sonnet-4-20250514",
-        max_tokens: 1000,
+        max_tokens: 4000,
         messages: [{ role: "user", content: prompt }],
       }),
     });
-    const data = await aiRes.json();
+     const data = await aiRes.json();
+    if(data.error) return res.status(500).json({ error: data.error.message || 'AI error' });
     const text = data.content?.find(c => c.type === "text")?.text || "{}";
+    const clean = text.replace(/```json|```/g, "").trim();
     try {
-      res.json(JSON.parse(text.replace(/```json|```/g, "").trim()));
-    } catch {
-      res.status(500).json({ error: "Invalid JSON from AI" });
+      const parsed = JSON.parse(clean);
+      res.json(parsed);
+    } catch(parseErr) {
+      console.error("Parse error:", parseErr.message);
+      console.error("Raw AI response:", clean);
+      res.status(500).json({ error: "Invalid JSON from AI", raw: clean });
     }
-  } catch (e) {
+    } catch(e) {
     res.status(500).json({ error: e.message });
   }
 });
